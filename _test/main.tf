@@ -1,15 +1,14 @@
-# AWS IAM Role Assumable via OpenID by GitHub Actions Workflows
+terraform {
+  required_providers {
+    github = {
+      source  = "integrations/github"
+    }
+  }
+  required_version = ">= 0.13"
+}
 
-Terraform module creating an IAM role which can be assumed via OpenID by a GitHub-repository-specific GitHub Actions workflow.
-
-https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
-
-## Usage
-
-```tf
 module "iam_role" {
-  source  = "babbel/iam-role-for-github-repository/aws"
-  version = "~> 1.0"
+  source  = "./.."
 
   github_repository           = github_repository.example
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
@@ -29,4 +28,3 @@ resource "aws_iam_openid_connect_provider" "github" {
 data "tls_certificate" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
-```
