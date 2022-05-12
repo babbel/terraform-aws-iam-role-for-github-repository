@@ -1,12 +1,29 @@
 locals {
-  conditions = merge(var.additional_conditions, {
-    aud        = var.openid_audience
-    repository = var.github_repository.full_name
-  })
+  context = (
+    var.context == null
+    ? "*"
+    : (
+      var.context.type == "environment"
+      ? "environment:${var.context.value}"
+      : (
+        var.context.type == "pull_request"
+        ? "pull_request"
+        : (
+          var.context.type == "branch"
+          ? "ref:refs/heads/${var.context.value}"
+          : (
+            var.context.type == "tag"
+            ? "ref:refs/tags/${var.context.value}"
+            : "invalid_context_type"
+          )
+        )
+      )
+    )
+  )
 }
 
 resource "aws_iam_role" "this" {
-  name = "github-actions-${md5(jsonencode(local.conditions))}"
+  name = "github-actions-${md5(data.aws_iam_policy_document.this.json)}"
 
   assume_role_policy = data.aws_iam_policy_document.this.json
 
@@ -22,14 +39,16 @@ data "aws_iam_policy_document" "this" {
 
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
-    dynamic "condition" {
-      for_each = local.conditions
+    condition {
+      variable = "token.actions.githubusercontent.com:aud"
+      test     = "StringEquals"
+      values   = [var.openid_audience]
+    }
 
-      content {
-        variable = "token.actions.githubusercontent.com:${condition.key}"
-        test     = "StringEquals"
-        values   = [condition.value]
-      }
+    condition {
+      variable = "token.actions.githubusercontent.com:sub"
+      test     = "StringLike"
+      values   = ["repo:${var.github_repository.full_name}:${local.context}"]
     }
   }
 }

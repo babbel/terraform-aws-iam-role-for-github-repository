@@ -1,21 +1,25 @@
-variable "additional_conditions" {
-  type = map(string)
-  default = {}
+variable "context" {
+  type = object({
+    type  = string
+    value = string
+  })
+  default = null
 
   description = <<EOS
-Map of additional conditions from the OpenID token to check in the IAM role's
-trust policy, e.g.
+The context `type` can be one of
 
-    {
-      environment = "production"
-    }
+* `"environment"` (if the job references an environment)
+* `"pull_request"` (if the job is triggered by a pull request event, but only if the job does not reference an environment)
+* `"branch"` (if the job is triggered on a branch, but not via a pull request event and does not reference an environment)
+* `"tag"` (if the job is triggered on a tag, but not via a pull request event and does not reference an environment)
 
-in order to ensure that the GitHub Actions workflow is running in context of a
-GitHub Action environment named "production".
+and the `value` specified the corresponding `"environment"`, `"branch"`, or `"tag"` name. For `"pull_request"`, `value` is not used and shall be `null`.
 
-List of all available condition keys:
+For `value`, you can include multi-character match wildcards (`*`) and single-character match wildcards (`?`) anywhere in the string.
 
-https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token
+If you omit this variable, the IAM role will be assumable by any job triggered on this repository.
+
+https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#example-subject-claims
 EOS
 }
 
@@ -52,7 +56,7 @@ EOS
 }
 
 variable "openid_audience" {
-  type = string
+  type    = string
   default = "sts.amazonaws.com"
 
   description = <<EOS
@@ -67,7 +71,7 @@ EOS
 }
 
 variable "tags" {
-  type = map(string)
+  type    = map(string)
   default = {}
 
   description = <<EOS
