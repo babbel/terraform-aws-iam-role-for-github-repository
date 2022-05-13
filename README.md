@@ -23,10 +23,18 @@ resource "aws_iam_openid_connect_provider" "github" {
   url = data.tls_certificate.github.url
 
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.github.certificates.0.sha1_fingerprint]
+  thumbprint_list = [local.github-certificate.sha1_fingerprint]
 }
 
 data "tls_certificate" "github" {
   url = "https://token.actions.githubusercontent.com"
+}
+
+locals {
+  github-certificate = one([
+    for certificate in data.tls_certificate.github.certificates :
+    certificate
+    if !certificate.is_ca
+  ])
 }
 ```
