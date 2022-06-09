@@ -7,6 +7,10 @@ terraform {
   required_version = ">= 0.13"
 }
 
+provider "aws" {
+  region = "local"
+}
+
 module "iam_role" {
   source  = "./.."
 
