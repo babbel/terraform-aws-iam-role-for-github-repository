@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.2.0
+## v1.1.0
 
 - [Relax version constraints for modules](https://github.com/babbel/terraform-aws-iam-role-for-github-repository/pull/7)
 
