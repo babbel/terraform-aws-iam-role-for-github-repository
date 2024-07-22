@@ -55,6 +55,17 @@ https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/i
 EOS
 }
 
+variable "max_session_duration" {
+  type    = number
+  default = null
+
+  description = <<EOS
+Maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours.
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#max_session_duration
+EOS
+}
+
 variable "openid_audience" {
   type    = string
   default = "sts.amazonaws.com"
