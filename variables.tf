@@ -86,6 +86,6 @@ variable "tags" {
   default = {}
 
   description = <<EOS
-Map of tags used on all AWS resources created by this module.
+Map of tags assigned to all AWS resources created by this module.
 EOS
 }
