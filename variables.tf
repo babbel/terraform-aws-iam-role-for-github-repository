@@ -69,7 +69,7 @@ variable "iam_role_tags" {
   default = {}
 
   description = <<EOS
-Map of tags assigned to the IAM role created by this module.
+Map of tags assigned to the IAM role created by this module. Tags in this map will override tags in `var.default_tags`.
 
 https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#tags
 EOS
