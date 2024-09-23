@@ -64,6 +64,17 @@ https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/i
 EOS
 }
 
+variable "iam_role_tags" {
+  type    = map(string)
+  default = {}
+
+  description = <<EOS
+Map of tags assigned to the IAM role created by this module.
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#tags
+EOS
+}
+
 variable "max_session_duration" {
   type    = number
   default = null
