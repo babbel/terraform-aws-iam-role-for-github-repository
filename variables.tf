@@ -23,6 +23,15 @@ https://docs.github.com/en/actions/deployment/security-hardening-your-deployment
 EOS
 }
 
+variable "default_tags" {
+  type    = map(string)
+  default = {}
+
+  description = <<EOS
+Map of tags assigned to all AWS resources created by this module.
+EOS
+}
+
 variable "github_repository" {
   type = object({
     full_name = string
@@ -78,14 +87,5 @@ The default value in this module corresponds with the default value passed by
 the `aws-actions/configure-aws-credentials` GitHub Action.
 
 https://github.com/aws-actions/configure-aws-credentials
-EOS
-}
-
-variable "tags" {
-  type    = map(string)
-  default = {}
-
-  description = <<EOS
-Map of tags assigned to all AWS resources created by this module.
 EOS
 }
