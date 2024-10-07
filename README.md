@@ -9,7 +9,7 @@ https://docs.github.com/en/actions/deployment/security-hardening-your-deployment
 ```tf
 module "iam_role" {
   source  = "babbel/iam-role-for-github-repository/aws"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   github_repository           = github_repository.example
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
