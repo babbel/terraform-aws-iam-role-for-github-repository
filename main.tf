@@ -23,7 +23,7 @@ locals {
 }
 
 resource "aws_iam_role" "this" {
-  name = "github-actions-${md5(data.aws_iam_policy_document.this.json)}"
+  name = coalesce(var.iam_role_name, "github-actions-${md5(data.aws_iam_policy_document.this.json)}")
 
   assume_role_policy   = data.aws_iam_policy_document.this.json
   max_session_duration = var.max_session_duration

@@ -64,6 +64,16 @@ https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/i
 EOS
 }
 
+variable "iam_role_name" {
+  type    = string
+  default = null
+
+  description = <<EOS
+Custom name for the IAM role. If not provided, the name will be automatically
+generated as `github-actions-<md5>` based on the assume role policy document.
+EOS
+}
+
 variable "iam_role_tags" {
   type    = map(string)
   default = {}
