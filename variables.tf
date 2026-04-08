@@ -71,6 +71,21 @@ variable "iam_role_name" {
   description = <<EOS
 Custom name for the IAM role. If not provided, the name will be automatically
 generated as `github-actions-<md5>` based on the assume role policy document.
+
+Conflicts with `var.iam_role_name_prefix`.
+EOS
+}
+
+variable "iam_role_name_prefix" {
+  type    = string
+  default = null
+
+  description = <<EOS
+Creates a unique name for the IAM role beginning with the specified prefix.
+
+Conflicts with `var.iam_role_name`.
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#name_prefix
 EOS
 }
 
