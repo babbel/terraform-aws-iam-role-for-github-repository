@@ -5,15 +5,6 @@ variable "context" {
   })
   default = null
 
-  validation {
-    condition = (
-      var.context == null ||
-      var.context.type == "pull_request" ||
-      (var.context.values != null && length(coalesce(var.context.values, [])) > 0)
-    )
-    error_message = "`context.values` must be a non-empty list of strings, except when `context.type` is \"pull_request\"."
-  }
-
   description = <<EOS
 The context `type` can be one of
 
