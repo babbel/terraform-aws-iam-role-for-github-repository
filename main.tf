@@ -1,16 +1,15 @@
 locals {
+  context_subject_prefix = var.context == null ? null : {
+    environment = "environment:"
+    branch      = "ref:refs/heads/"
+    tag         = "ref:refs/tags/"
+  }
+
   contexts = (
     var.context == null
     ? ["*"]
     : var.context.type == "pull_request" ? ["pull_request"]
-    : [
-      for v in var.context.values : (
-        var.context.type == "environment" ? "environment:${v}" :
-        var.context.type == "branch" ? "ref:refs/heads/${v}" :
-        var.context.type == "tag" ? "ref:refs/tags/${v}" :
-        "invalid_context_type"
-      )
-    ]
+    : [for v in var.context.values : "${local.context_subject_prefix[var.context.type]}${v}"]
   )
 }
 

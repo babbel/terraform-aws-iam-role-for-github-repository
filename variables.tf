@@ -6,6 +6,11 @@ variable "context" {
   default = null
 
   validation {
+    condition     = var.context == null || contains(["environment", "pull_request", "branch", "tag"], var.context.type)
+    error_message = "`context.type` must be one of: \"environment\", \"pull_request\", \"branch\", \"tag\"."
+  }
+
+  validation {
     condition = (
       var.context == null ||
       var.context.type == "pull_request" ||
