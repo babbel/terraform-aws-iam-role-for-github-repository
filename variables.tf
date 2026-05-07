@@ -6,14 +6,14 @@ variable "context" {
   default = null
 
   validation {
-    condition     = var.context == null || contains(["environment", "pull_request", "branch", "tag"], var.context.type)
+    condition     = var.context == null ? true : contains(["environment", "pull_request", "branch", "tag"], var.context.type)
     error_message = "`context.type` must be one of: \"environment\", \"pull_request\", \"branch\", \"tag\"."
   }
 
   validation {
     condition = (
-      var.context == null ||
-      var.context.type == "pull_request" ||
+      var.context == null ? true :
+      var.context.type == "pull_request" ? true :
       (var.context.values != null && length(coalesce(var.context.values, [])) > 0)
     )
     error_message = "`context.values` must be a non-empty list of strings, except when `context.type` is \"pull_request\"."
