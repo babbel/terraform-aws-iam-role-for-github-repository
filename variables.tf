@@ -1,9 +1,23 @@
 variable "context" {
   type = object({
-    type  = string
-    value = string
+    type   = string
+    values = optional(list(string))
   })
   default = null
+
+  validation {
+    condition     = var.context == null ? true : contains(["environment", "pull_request", "branch", "tag"], var.context.type)
+    error_message = "`context.type` must be one of: \"environment\", \"pull_request\", \"branch\", \"tag\"."
+  }
+
+  validation {
+    condition = (
+      var.context == null ? true :
+      var.context.type == "pull_request" ? true :
+      (var.context.values != null && length(coalesce(var.context.values, [])) > 0)
+    )
+    error_message = "`context.values` must be a non-empty list of strings, except when `context.type` is \"pull_request\"."
+  }
 
   description = <<EOS
 The context `type` can be one of
@@ -13,9 +27,11 @@ The context `type` can be one of
 * `"branch"` (if the job is triggered on a branch, but not via a pull request event and does not reference an environment)
 * `"tag"` (if the job is triggered on a tag, but not via a pull request event and does not reference an environment)
 
-and the `value` specified the corresponding `"environment"`, `"branch"`, or `"tag"` name. For `"pull_request"`, `value` is not used and shall be `null`.
+For `"environment"`, `"branch"`, and `"tag"` types, `values` is a non-empty list of `"environment"`, `"branch"`, or `"tag"` names. The IAM role is assumable from any subject that matches any entry — all entries are OR'd together in the trust policy.
 
-For `value`, you can include multi-character match wildcards (`*`) and single-character match wildcards (`?`) anywhere in the string.
+For `"pull_request"`, `values` is not used and shall be `null`.
+
+For each entry in `values`, you can include multi-character match wildcards (`*`) and single-character match wildcards (`?`) anywhere in the string.
 
 If you omit this variable, the IAM role will be assumable by any job triggered on this repository.
 
