@@ -1,24 +1,22 @@
 locals {
-  context = (
+  context_raw_values = (
     var.context == null
-    ? "*"
-    : (
-      var.context.type == "environment"
-      ? "environment:${var.context.value}"
-      : (
-        var.context.type == "pull_request"
-        ? "pull_request"
-        : (
-          var.context.type == "branch"
-          ? "ref:refs/heads/${var.context.value}"
-          : (
-            var.context.type == "tag"
-            ? "ref:refs/tags/${var.context.value}"
-            : "invalid_context_type"
-          )
-        )
+    ? null
+    : var.context.values != null ? var.context.values : (var.context.value != null ? [var.context.value] : null)
+  )
+
+  contexts = (
+    var.context == null
+    ? ["*"]
+    : var.context.type == "pull_request" ? ["pull_request"]
+    : [
+      for v in local.context_raw_values : (
+        var.context.type == "environment" ? "environment:${v}" :
+        var.context.type == "branch" ? "ref:refs/heads/${v}" :
+        var.context.type == "tag" ? "ref:refs/tags/${v}" :
+        "invalid_context_type"
       )
-    )
+    ]
   )
 }
 
@@ -50,7 +48,9 @@ data "aws_iam_policy_document" "this" {
     condition {
       variable = "token.actions.githubusercontent.com:sub"
       test     = "StringLike"
-      values   = ["repo:${var.github_repository.full_name}:${local.context}"]
+      values = [
+        for c in local.contexts : "repo:${var.github_repository.full_name}:${c}"
+      ]
     }
   }
 }
