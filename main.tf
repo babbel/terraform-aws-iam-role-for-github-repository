@@ -1,16 +1,10 @@
 locals {
-  context_raw_values = (
-    var.context == null
-    ? null
-    : var.context.values != null ? var.context.values : (var.context.value != null ? [var.context.value] : null)
-  )
-
   contexts = (
     var.context == null
     ? ["*"]
     : var.context.type == "pull_request" ? ["pull_request"]
     : [
-      for v in local.context_raw_values : (
+      for v in var.context.values : (
         var.context.type == "environment" ? "environment:${v}" :
         var.context.type == "branch" ? "ref:refs/heads/${v}" :
         var.context.type == "tag" ? "ref:refs/tags/${v}" :

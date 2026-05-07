@@ -1,7 +1,6 @@
 variable "context" {
   type = object({
     type   = string
-    value  = optional(string)
     values = optional(list(string))
   })
   default = null
@@ -10,10 +9,9 @@ variable "context" {
     condition = (
       var.context == null ||
       var.context.type == "pull_request" ||
-      (var.context.value != null && var.context.values == null) ||
-      (var.context.value == null && var.context.values != null && length(coalesce(var.context.values, [])) > 0)
+      (var.context.values != null && length(coalesce(var.context.values, [])) > 0)
     )
-    error_message = "Exactly one of `context.value` (string) or `context.values` (non-empty list of strings) must be set, except when `context.type` is \"pull_request\"."
+    error_message = "`context.values` must be a non-empty list of strings, except when `context.type` is \"pull_request\"."
   }
 
   description = <<EOS
@@ -24,14 +22,11 @@ The context `type` can be one of
 * `"branch"` (if the job is triggered on a branch, but not via a pull request event and does not reference an environment)
 * `"tag"` (if the job is triggered on a tag, but not via a pull request event and does not reference an environment)
 
-For `"environment"`, `"branch"`, and `"tag"` types, set either:
+For `"environment"`, `"branch"`, and `"tag"` types, `values` is a non-empty list of `"environment"`, `"branch"`, or `"tag"` names. The IAM role is assumable from any subject that matches any entry — all entries are OR'd together in the trust policy.
 
-* `value` — a single string for the corresponding `"environment"`, `"branch"`, or `"tag"` name, or
-* `values` — a non-empty list of strings, when the IAM role should be assumable from multiple matching subjects (e.g. several environments or several workflow refs). All entries are OR'd together in the trust policy.
+For `"pull_request"`, `values` is not used and shall be `null`.
 
-For `"pull_request"`, neither `value` nor `values` is used and both shall be `null`.
-
-For each entry in `value`/`values`, you can include multi-character match wildcards (`*`) and single-character match wildcards (`?`) anywhere in the string.
+For each entry in `values`, you can include multi-character match wildcards (`*`) and single-character match wildcards (`?`) anywhere in the string.
 
 If you omit this variable, the IAM role will be assumable by any job triggered on this repository.
 
