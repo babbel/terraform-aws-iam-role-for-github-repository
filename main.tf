@@ -14,10 +14,10 @@ locals {
 
   # GitHub embeds immutable numeric owner and repository IDs in the `sub` claim —
   # `repo:OWNER@OWNER_ID/NAME@REPO_ID` instead of `repo:OWNER/NAME` — for repositories created
-  # after 2026-07-15 and for older repositories which opted in. A repository issues one form or
-  # the other, never both, so both subjects are trusted while the migration is in progress. Set
-  # `var.trust_mutable_subject` to `false` to stop trusting the name-based subject once a
-  # repository is known to issue immutable claims.
+  # after 2026-07-15 and for older repositories which opted in. A repository issues one form or the
+  # other, never both. Only the immutable subject is trusted, unless `var.trust_mutable_subject`
+  # opts a repository back into the legacy name-based claim — which is required for every
+  # repository that has not migrated yet.
   #
   # https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
   repository_owner = split("/", var.github_repository.full_name)[0]
@@ -47,7 +47,7 @@ resource "aws_iam_role" "this" {
   lifecycle {
     precondition {
       condition     = length(local.repositories) > 0
-      error_message = "With `trust_mutable_subject` set to `false`, both `github_owner_id` and `github_repository.repo_id` must be set — otherwise the IAM role would trust no subject at all."
+      error_message = "The IAM role would trust no subject at all. Set `github_owner_id` and `github_repository.repo_id` to trust the immutable subject claim, or set `trust_mutable_subject` to `true` for a repository which still issues name-based subject claims."
     }
   }
 }

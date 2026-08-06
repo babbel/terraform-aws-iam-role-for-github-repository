@@ -15,6 +15,7 @@ module "iam_role" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 }
 
@@ -22,6 +23,7 @@ module "iam_role_with_environment_context" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
@@ -34,6 +36,7 @@ module "iam_role_with_pull_request_context" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
@@ -45,6 +48,7 @@ module "iam_role_with_branch_context" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
@@ -57,6 +61,7 @@ module "iam_role_with_tag_context" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
@@ -65,25 +70,14 @@ module "iam_role_with_tag_context" {
   }
 }
 
-module "iam_role_with_immutable_subject" {
+# A repository which predates 2026-07-15 and still issues name-based subject claims: both subjects
+# are trusted, which is also the intermediate state while migrating it to immutable claims.
+module "iam_role_with_mutable_subject" {
   source = "./.."
 
   github_repository           = github_repository.example
   github_owner_id             = 123456
-  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
-
-  context = {
-    type   = "environment"
-    values = ["production"]
-  }
-}
-
-module "iam_role_with_immutable_subject_only" {
-  source = "./.."
-
-  github_repository           = github_repository.example
-  github_owner_id             = 123456
-  trust_mutable_subject       = false
+  trust_mutable_subject       = true
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
@@ -96,6 +90,7 @@ module "iam_role_with_custom_name" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   iam_role_name = "custom-role-name"
@@ -105,6 +100,7 @@ module "iam_role_with_name_prefix" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   iam_role_name_prefix = "github-actions-"
@@ -114,6 +110,7 @@ module "iam_role_with_all_options" {
   source = "./.."
 
   github_repository           = github_repository.example
+  github_owner_id             = 123456
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 
   context = {
