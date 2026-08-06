@@ -9,9 +9,10 @@ https://docs.github.com/en/actions/deployment/security-hardening-your-deployment
 ```tf
 module "iam_role" {
   source  = "babbel/iam-role-for-github-repository/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   github_repository           = github_repository.example
+  github_owner_id             = data.github_organization.example.id
   iam_openid_connect_provider = aws_iam_openid_connect_provider.github
 }
 
@@ -38,3 +39,38 @@ locals {
   ])
 }
 ```
+
+## Subject claim formats
+
+GitHub issues OIDC tokens whose `sub` claim identifies the repository either by immutable numeric
+IDs (`repo:OWNER@OWNER_ID/NAME@REPO_ID`) or by name (`repo:OWNER/NAME`). The immutable format is the
+default for repositories created after 2026-07-15 and is opt-in for older ones, so the trust policy
+has to match the format the repository actually issues.
+
+This module trusts the immutable subject claim, which is why `github_owner_id` is part of the usage
+above and why `github_repository` must carry `repo_id`. Trusting the name-based claim is legacy
+behaviour and is opt-in:
+
+```tf
+module "iam_role" {
+  source  = "babbel/iam-role-for-github-repository/aws"
+  version = "~> 4.0"
+
+  github_repository           = github_repository.example
+  github_owner_id             = data.github_organization.example.id
+  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
+
+  # This repository predates 2026-07-15 and has not opted in yet.
+  trust_mutable_subject = true
+}
+```
+
+Migrating such a repository requires trusting both subjects in between, because the repository's
+setting and the trust policy cannot change in the same instant:
+
+1. set `trust_mutable_subject = true` and apply, so both subjects are trusted,
+2. opt the repository in to immutable subject claims,
+3. verify the `sub` its tokens carry,
+4. remove `trust_mutable_subject` and apply.
+
+https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
