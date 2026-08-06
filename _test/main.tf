@@ -65,6 +65,33 @@ module "iam_role_with_tag_context" {
   }
 }
 
+module "iam_role_with_immutable_subject" {
+  source = "./.."
+
+  github_repository           = github_repository.example
+  github_owner_id             = 123456
+  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
+
+  context = {
+    type   = "environment"
+    values = ["production"]
+  }
+}
+
+module "iam_role_with_immutable_subject_only" {
+  source = "./.."
+
+  github_repository           = github_repository.example
+  github_owner_id             = 123456
+  trust_mutable_subject       = false
+  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
+
+  context = {
+    type   = "environment"
+    values = ["production"]
+  }
+}
+
 module "iam_role_with_custom_name" {
   source = "./.."
 

@@ -48,9 +48,30 @@ Map of tags assigned to all AWS resources created by this module.
 EOS
 }
 
+variable "github_owner_id" {
+  type    = number
+  default = null
+
+  description = <<EOS
+Numeric ID of the GitHub organization or user owning `var.github_repository`.
+
+Set this together with `var.github_repository.repo_id` to have the IAM role trust the immutable
+subject claim `repo:OWNER@OWNER_ID/NAME@REPO_ID`, which GitHub issues for repositories created
+after 2026-07-15 and for older repositories which opted in. Without both IDs, only the name-based
+subject claim `repo:OWNER/NAME` is trusted, and repositories issuing immutable claims cannot
+assume the IAM role.
+
+The ID is available from the REST API (`gh api orgs/ORG --jq .id`) and from the
+`github_organization` data source.
+
+https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
+EOS
+}
+
 variable "github_repository" {
   type = object({
     full_name = string
+    repo_id   = optional(number)
   })
 
   description = <<EOS
@@ -61,6 +82,9 @@ Instance of the `github_repository` resource or data source:
 
 https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository
 https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/repository
+
+`repo_id` is only required in combination with `var.github_owner_id`, in order to trust immutable
+subject claims. Both the resource and the data source export it.
 EOS
 }
 
@@ -139,5 +163,21 @@ The default value in this module corresponds with the default value passed by
 the `aws-actions/configure-aws-credentials` GitHub Action.
 
 https://github.com/aws-actions/configure-aws-credentials
+EOS
+}
+
+variable "trust_mutable_subject" {
+  type    = bool
+  default = true
+
+  description = <<EOS
+Whether the IAM role trusts the name-based (mutable) subject claim `repo:OWNER/NAME`.
+
+Keep this enabled for repositories which still issue name-based subject claims. Set it to `false`
+once a repository is known to issue immutable subject claims, so that a repository renamed away
+from `var.github_repository.full_name` cannot be impersonated by a new repository taking over the
+old name. Requires `var.github_owner_id` and `var.github_repository.repo_id` to be set.
+
+https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
 EOS
 }
