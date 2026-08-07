@@ -187,3 +187,17 @@ repository's workflows for as long as the two sides disagree.
 https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
 EOS
 }
+
+variable "trust_immutable_subject" {
+  type    = bool
+  default = false
+
+  description = <<EOS
+Whether the IAM role trusts the new immutable subject claims `repo:OWNER@OWNER_ID/NAME@REPO_ID`.
+
+Set it to `true` for a repository that issues newly formatted subject claims — every repository
+created before 2026-07-15 which has opted in, or any repository created after 2026-07-15.
+
+https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
+EOS
+}
