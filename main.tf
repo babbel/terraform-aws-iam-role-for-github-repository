@@ -31,7 +31,7 @@ locals {
 
   repositories = compact([
     var.trust_mutable_subject ? var.github_repository.full_name : null,
-    local.immutable_repository,
+    var.trust_immutable_subject ? local.immutable_repository : null,
   ])
 }
 
