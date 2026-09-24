@@ -166,16 +166,3 @@ https://github.com/aws-actions/configure-aws-credentials
 EOS
 }
 
-variable "trust_immutable_subject" {
-  type    = bool
-  default = true
-
-  description = <<EOS
-Whether the IAM role trusts the immutable subject claim `repo:OWNER@OWNER_ID/NAME@REPO_ID`. It's
-the only subject claim this module can trust, so this defaults to `true` and normally does not need
-setting — it exists so a role can be planned without yet trusting anything (e.g. before
-`github_owner_id`/`github_repository.repo_id` are known), by explicitly setting it to `false`.
-
-https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
-EOS
-}
