@@ -44,18 +44,33 @@ locals {
 
 GitHub issues OIDC tokens whose `sub` claim identifies the repository either by immutable numeric
 IDs (`repo:OWNER@OWNER_ID/NAME@REPO_ID`) or by name (`repo:OWNER/NAME`). The immutable format is the
-default for repositories created after 2026-07-15 and is opt-in for older ones.
+default for repositories created after 2026-07-15 and is opt-in for older ones, so the trust policy
+has to match the format the repository actually issues.
 
-This module only ever trusts the immutable subject claim, which is why `github_owner_id` is part of
-the usage above and why `github_repository` must carry `repo_id`. A repository must have opted in to
-the immutable claim (or have been created after 2026-07-15) before its IAM role can be created or
-updated with this module — see
-[`gh api repos/OWNER/NAME/actions/oidc/customization/sub --jq .sub_claim_prefix`](https://docs.github.com/en/rest/actions/oidc)
-to check, and the REST API to opt a repository in, since the GitHub Terraform provider has no
-resource for it.
+This module trusts the immutable subject claim, which is why `github_owner_id` is part of the usage
+above and why `github_repository` must carry `repo_id`. Trusting the name-based claim is legacy
+behaviour and is opt-in:
 
-Trusting the legacy name-based claim (`trust_mutable_subject`) was removed in v5.0.0 — see the
-[v5.0.0 release notes](https://github.com/babbel/terraform-aws-iam-role-for-github-repository/releases/tag/v5.0.0)
-if you're migrating a role still using it.
+```tf
+module "iam_role" {
+  source  = "babbel/iam-role-for-github-repository/aws"
+  version = "~> 4.0"
+
+  github_repository           = github_repository.example
+  github_owner_id             = data.github_organization.example.id
+  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
+
+  # This repository predates 2026-07-15 and has not opted in yet.
+  trust_mutable_subject = true
+}
+```
+
+Migrating such a repository requires trusting both subjects in between, because the repository's
+setting and the trust policy cannot change in the same instant:
+
+1. set `trust_mutable_subject = true` and apply, so both subjects are trusted,
+2. opt the repository in to immutable subject claims,
+3. verify the `sub` its tokens carry,
+4. remove `trust_mutable_subject` and apply.
 
 https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/

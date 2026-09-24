@@ -70,6 +70,22 @@ module "iam_role_with_tag_context" {
   }
 }
 
+# A repository which predates 2026-07-15 and still issues name-based subject claims: both subjects
+# are trusted, which is also the intermediate state while migrating it to immutable claims.
+module "iam_role_with_mutable_subject" {
+  source = "./.."
+
+  github_repository           = github_repository.example
+  github_owner_id             = 123456
+  trust_mutable_subject       = true
+  iam_openid_connect_provider = aws_iam_openid_connect_provider.github
+
+  context = {
+    type   = "environment"
+    values = ["production"]
+  }
+}
+
 module "iam_role_with_custom_name" {
   source = "./.."
 
