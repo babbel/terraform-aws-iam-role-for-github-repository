@@ -166,38 +166,3 @@ https://github.com/aws-actions/configure-aws-credentials
 EOS
 }
 
-variable "trust_mutable_subject" {
-  type    = bool
-  default = false
-
-  description = <<EOS
-Whether the IAM role additionally trusts the name-based (mutable) subject claim `repo:OWNER/NAME`.
-
-Trusting it is legacy behaviour: a repository renamed away from `var.github_repository.full_name`
-can then be impersonated by a new repository taking over the old name, which is what immutable
-subject claims exist to prevent. It is therefore disabled by default, and the IAM role trusts only
-`repo:OWNER@OWNER_ID/NAME@REPO_ID`.
-
-Set it to `true` for a repository which still issues name-based subject claims — every repository
-created before 2026-07-15 which has not opted in. It is also the safe intermediate state when
-migrating such a repository: trust both subjects, opt the repository in, verify the `sub` its
-tokens carry, then set this back to `false`. Skipping that intermediate state breaks the
-repository's workflows for as long as the two sides disagree.
-
-https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
-EOS
-}
-
-variable "trust_immutable_subject" {
-  type    = bool
-  default = true
-
-  description = <<EOS
-Whether the IAM role trusts the immutable subject claim `repo:OWNER@OWNER_ID/NAME@REPO_ID`. It's
-the only subject claim this module can trust, so this defaults to `true` and normally does not need
-setting — it exists so a role can be planned without yet trusting anything (e.g. before
-`github_owner_id`/`github_repository.repo_id` are known), by explicitly setting it to `false`.
-
-https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
-EOS
-}
