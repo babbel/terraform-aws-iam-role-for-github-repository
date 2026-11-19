@@ -112,6 +112,8 @@ module "iam_role_with_all_options" {
   iam_role_tags = {
     Owner = "team-infra"
   }
+
+  iam_role_permissions_boundary_name = "example-boundary"
 }
 
 resource "github_repository" "example" {
