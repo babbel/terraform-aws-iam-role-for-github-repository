@@ -62,7 +62,10 @@ https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-act
 
 ## Permissions boundary
 
-`iam_role_permissions_boundary` sets a permissions boundary on the IAM role. It defaults to `null`
-(no boundary). The boundary is only set when the IAM role is created: the module ignores later
-changes to it, so setting or changing the variable never modifies an existing role. To apply a
-boundary to an existing role, replace the role or set the boundary outside of this module.
+`iam_role_permissions_boundary_name` sets a permissions boundary on the IAM role. It takes the name
+of an IAM policy which must exist in the role's account; the module builds the policy ARN from the
+account and partition of the AWS provider. It defaults to `null` (no boundary).
+
+The boundary is only set when the IAM role is created: the module ignores later changes to it, so
+setting or changing the variable never modifies an existing role. To apply a boundary to an
+existing role, replace the role or set the boundary outside of this module.

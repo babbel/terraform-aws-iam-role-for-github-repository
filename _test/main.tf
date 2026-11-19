@@ -113,7 +113,7 @@ module "iam_role_with_all_options" {
     Owner = "team-infra"
   }
 
-  iam_role_permissions_boundary = "arn:aws:iam::123456789012:policy/example-boundary"
+  iam_role_permissions_boundary_name = "example-boundary"
 }
 
 resource "github_repository" "example" {
