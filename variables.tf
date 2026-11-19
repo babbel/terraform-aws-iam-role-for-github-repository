@@ -129,6 +129,17 @@ https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_
 EOS
 }
 
+variable "iam_role_permissions_boundary" {
+  type    = string
+  default = null
+
+  description = <<EOS
+ARN of the IAM policy set as permissions boundary of the IAM role. It is only set when the role is created: changing it later doesn't change an existing role.
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role#permissions_boundary
+EOS
+}
+
 variable "iam_role_tags" {
   type    = map(string)
   default = {}

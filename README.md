@@ -59,3 +59,10 @@ Trusting the legacy name-based claim (`trust_mutable_subject`) was removed in v5
 if you're migrating a role still using it.
 
 https://github.blog/changelog/2026-04-23-immutable-subject-claims-for-github-actions-oidc-tokens/
+
+## Permissions boundary
+
+`iam_role_permissions_boundary` sets a permissions boundary on the IAM role. It defaults to `null`
+(no boundary). The boundary is only set when the IAM role is created: the module ignores later
+changes to it, so setting or changing the variable never modifies an existing role. To apply a
+boundary to an existing role, replace the role or set the boundary outside of this module.

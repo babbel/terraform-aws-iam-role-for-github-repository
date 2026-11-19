@@ -36,10 +36,15 @@ resource "aws_iam_role" "this" {
 
   assume_role_policy   = data.aws_iam_policy_document.this.json
   max_session_duration = var.max_session_duration
+  permissions_boundary = var.iam_role_permissions_boundary
 
   tags = merge(var.default_tags, var.iam_role_tags)
 
   lifecycle {
+    # The permissions boundary is only set when the role is created, so that setting
+    # `var.iam_role_permissions_boundary` never changes an existing role.
+    ignore_changes = [permissions_boundary]
+
     precondition {
       condition     = length(local.repositories) > 0
       error_message = "The IAM role would trust no subject at all. Set `github_owner_id` and `github_repository.repo_id` to trust the immutable subject claim."
